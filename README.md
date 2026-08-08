@@ -1,140 +1,141 @@
-#  Amazon E-Commerce Sales & Product Performance Analysis
+#  Telco Customer Churn Analysis — ABC Communications Ltd
 
-##  Project Overview
-This project presents an Amazon E-Commerce Sales and Product Performance Analysis using real Amazon product data. The analysis covers product ratings, pricing, discounts and customer engagement across multiple product categories to uncover powerful business insights and performance trends.
+## Project Overview
+This project presents a Customer Churn Analysis for ABC Communications Ltd, a telecom company, using the Telco Customer Churn dataset. The analysis investigates why customers leave, which segments carry the highest churn risk, and what business actions can improve retention — covering contract structure, tenure, service usage, payment behavior, and demographics.
 
-**Track:** Data Analysis — NTTS Stage 7 | MicroTech Africa Nigeria
+**Track:** Data Analytics Internship — Week 1 Business Analytics Case Study | AnalystLab Africa Consulting
 **Prepared by:** Ndidiamaka Umahi
-**Tools Used:** Microsoft Excel | Power Query | Pivot Charts | Dashboard Design
+**Tools Used:** Microsoft Excel | Power Query | PivotTables | Dashboard Design | Microsoft Word | Microsoft PowerPoint
 
-##  Files in This Repository
+## Files in This Repository
 | File | Description |
-| `Amazon_Sales.csv` | Raw dataset — 1,465 Amazon product records |
-| `Amazon sales analysis dashboard.xlsx` | Cleaned data and interactive dashboard |
+|---|---|
+| `WA_Fn-UseC_-Telco-Customer-Churn.xlsx` | Raw dataset — 7,043 customer records |
+| `telco_churn_dashboard.xlsx` | Cleaned data, pivot tables, and interactive dashboard |
 | `DASHBOARD.png` | Screenshot of the final dashboard |
-| `BUSINESS_QUESTIONS.pdf` | All 5 business questions with data-driven answers |
-| `EXECUTIVE_SUMMARY.pdf` | One-page executive summary for management |
+| `ABC_Communications_Churn_Analysis_Report.pdf` | Full Business Analytics Report (Understanding, Inspection, Analysis, Insights, Recommendations) |
+| `ABC_Communications_Dataset_Inspection_Report.pdf` | Standalone Dataset Inspection Report |
+| `ABC_Communications_Churn_Presentation.pptx` | Business Presentation slide deck |
 
-##  Dataset Description
+## Dataset Description
 | Column | Description |
-| `Product_id` | Unique product identifier |
-| `Product_name` | Name of the product |
-| `Category` | Full product category hierarchy |
-| `Discounted_price` | Current selling price |
-| `Actual_price` | Original price before discount |
-| `Discount_percentage` | Percentage discount applied |
-| `Rating` | Average customer rating (1-5) |
-| `Rating_count` | Number of customer ratings |
-| `User_name` | Name of reviewer |
-| `Review_title` | Short review title |
+|---|---|
+| `customerID` | Unique customer identifier |
+| `gender`, `SeniorCitizen`, `Partner`, `Dependents` | Customer demographics |
+| `tenure` | Number of months customer has stayed with the company |
+| `Contract` | Month-to-month, One year, or Two year |
+| `PaymentMethod` | How the customer pays their bill |
+| `MonthlyCharges`, `TotalCharges` | Billing amounts |
+| `PhoneService`, `InternetService`, `OnlineSecurity`, `OnlineBackup`, `DeviceProtection`, `TechSupport`, `StreamingTV`, `StreamingMovies` | Subscribed services |
+| `Churn` | Whether the customer left (Yes/No) — target variable |
 
-## 🧹 Data Cleaning Steps (Power Query)
-- Removed unnecessary columns — `about_product`, `img_link`, `product_link`, `review_content`, `review_id`, `user_id`
-- Removed ₹ symbol and commas from price columns and converted to Whole Number
-- Removed % symbol from discount column and converted to Decimal Number
-- Handled 1 invalid rating row containing only a pipe symbol "|"
-- Replaced null values in `rating` and `rating_count` with 0
-- Added **Main_Category** column — extracted first category before "|" delimiter
-- Added **Price_Range** column — Budget, Mid-Range, Premium, Luxury
-- Added **Discount_Range** column — Low, Medium, High, Very High
+##  Data Cleaning Steps (Power Query)
+- Converted `TotalCharges` from text to Decimal Number
+- Identified 11 blank `TotalCharges` rows, all belonging to customers with `tenure = 0`; filled with 0 as the logically correct value (MonthlyCharges × 0 tenure), not an average or dropped row
+- Converted `SeniorCitizen` from 0/1 to Yes/No for consistency with other binary fields
+- Verified 0 duplicate rows and confirmed all other column types matched expected format
+- Added **Tenure Group** column — bucketed into 0-12, 13-24, 25-48, 49-60, 61-72 month ranges
+- Added **Churn Flag** column — numeric 1/0 version of Churn, enabling churn-rate averaging in pivots
+- Added **Service Count** column — count of add-on services (0-6) per customer
+- Added **Avg Monthly Spend** column — TotalCharges ÷ tenure, guarded against divide-by-zero for new customers
+- Added **CLTV Estimate** column — MonthlyCharges × tenure, an estimated customer lifetime value
 
+## Business Questions & Key Findings
 
-##  Business Questions & Key Findings
+### Q1 — What Does the Customer Base Look Like?
+| Metric | Value |
+|---|---|
+| Total Customers | 7,043 |
+| Gender Split | 50% Female / 50% Male |
+| Contract Split | 55% Month-to-month / 21% One year / 24% Two year |
+| Average Tenure | 32.4 months |
+| Average Monthly Charges | $64.76 |
+> Gender is evenly split and not a differentiating factor, but the customer base is heavily weighted toward month-to-month contracts — the exact segment that proves to carry the highest churn risk.
 
-### Q1 — Top Performing Products by Rating
-| Rank | Product | Rating |
-|------|---------|--------|
-| 1 | Syncwire LTG to USB Cable | 5.00 |
-| 2 | Amazon Basics Wireless Mouse | 5.00 |
-| 3 | REDTECH USB-C to Lightning Cable | 5.00 |
-| 4 | Instant Pot Air Fryer Vortex 2QT | 4.80 |
-| 5 | Swiffer Instant Electric Water Heater | 4.80 |
-> Top 3 products share a perfect 5.00 rating — all simple reliable accessories confirming that practical everyday products consistently achieve the highest customer satisfaction.
+### Q2 — Which Segments Have the Highest Churn?
+| Segment | Churn Rate |
+|---|---|
+| Senior Citizens | 41.7% |
+| Non-Senior Citizens | 23.6% |
+| No Partner | 33.0% |
+| Has Partner | 19.7% |
+| No Dependents | 31.3% |
+| Has Dependents | 15.5% |
+> Customers with fewer household ties — no partner, no dependents, and particularly senior citizens — show markedly higher churn. Gender shows almost no relationship (26.9% vs 26.2%).
 
-### Q2 — Price vs Rating Analysis
-| Price Range | Avg Actual Price | Avg Discounted Price | Avg Rating |
-|-------------|-----------------|---------------------|-----------|
-| Budget (₹0-500) | ₹362.83 | ₹195.15 | 4.07 |
-| Mid-Range (₹501-2,000) | ₹1,222.04 | ₹587.45 | 4.10 |
-| Premium (₹2,001-10,000) | ₹4,727.81 | ₹2,374.40 | 4.07 |
-| Luxury (₹10,000+) | ₹27,424.71 | ₹16,877.23 | 4.18 |
-> Price does not significantly affect customer rating — all ranges score between 4.07 and 4.18 showing customers are equally satisfied regardless of spending level.
+### Q3 — Does Contract Type Influence Retention?
+| Contract Type | Churn Rate |
+|---|---|
+| Month-to-month | 42.7% |
+| One year | 11.3% |
+| Two year | 2.8% |
+> The single strongest churn driver in the dataset — a ~15x gap between month-to-month and two-year contracts.
 
-### Q3 — Category Performance
-| Category | Avg Rating | Total Reviews |
-|----------|-----------|--------------|
-| Office Products | 4.31 | 149,675 |
-| Toys & Games | 4.30 | 15,867 |
-| Electronics | 4.08 | 15,778,848 |
-| Computers & Accessories | 4.15 | 7,728,689 |
-| Car & Motorbike | 3.80 | 1,118 |
-> Office Products leads by rating (4.31) while Electronics dominates by volume (15.7M reviews). Car & Motorbike is the weakest category with lowest rating and fewest reviews.
+### Q4 — Does Tenure Affect Loyalty?
+| Tenure Group | Churn Rate |
+|---|---|
+| 0-12 months | 47.4% |
+| 13-24 months | 28.7% |
+| 25-48 months | 20.4% |
+| 49-60 months | 14.4% |
+| 61-72 months | 6.6% |
+> Churn declines steadily and consistently with tenure. The customer base itself is bimodal — a large cluster of new customers and a second cluster of long-term loyalists, with fewer in between.
 
-### Q4 — Product Popularity by User Engagement
-| Rank | Product | Total Reviews |
-|------|---------|--------------|
-| 1 | Amazon Basics High-Speed HDMI Cable | 853,946 |
-| 2 | AmazonBasics Flexible Premium HDMI Cable | 853,945 |
-| 3 | boAt Bassheads 100 In Ear Earphones | 727,426 |
-| 4 | Redmi 9A Sport (Coral Green) | 627,668 |
-| 5 | JBL C100SI Wired In Ear Headphones | 577,766 |
-> Amazon Basics HDMI Cables dominate the top 2 positions confirming Amazon's own brand products are extremely popular.
+### Q5 — Which Services Influence Churn?
+| Service Factor | Churn Rate |
+|---|---|
+| Fiber Optic Internet | 41.9% |
+| DSL Internet | 19.0% |
+| No Online Security | 41.8% |
+| Has Online Security | 14.6% |
+> Fiber optic customers churn more than double DSL customers despite being the premium tier. Churn peaks among customers with exactly 1 add-on service (45.8%) — higher than customers with none (21.4%) — before dropping steadily as service count rises to 6 (5.3%).
 
-### Q5 — KPIs & Additional Insights
+### Q6 — Which Payment Methods Have Higher Churn?
+| Payment Method | Churn Rate |
+|---|---|
+| Electronic Check | 45.3% |
+| Mailed Check | 19.1% |
+| Bank Transfer (Automatic) | 16.7% |
+| Credit Card (Automatic) | 15.2% |
+> Electronic check users churn nearly 3x more than automatic payment methods — and it's the largest payment segment in the base (2,365 customers).
 
-**Key Performance Indicators:**
-| KPI | Value |
-|-----|-------|
-| Total Products | 1,464 |
-| Average Rating | 4.10 |
-| Average Discount | 47.71% |
-| Most Reviewed Category | Electronics |
-| Average Price Saving | ₹2,321 |
+### Cross-Factor Analysis — Correlation & Spend
+| Variable | Correlation with Churn |
+|---|---|
+| Tenure | -0.35 |
+| Monthly Charges | +0.19 |
+| Total Charges | -0.20 |
+| Service Count | -0.09 |
+> Tenure is the strongest linear predictor of churn. Churned customers also show a higher median monthly spend, reinforcing the fiber optic and premium-pricing churn pattern.
 
-**Additional Insight 1 — Discount Distribution:**
-| Discount Range | Count | Percentage |
-|----------------|-------|-----------|
-| High (41-60%) | 514 | 35% |
-| Very High (61%+) | 440 | 30% |
-| Medium (21-40%) | 339 | 23% |
-| Low (0-20%) | 171 | 12% |
-> 65% of all products offer discounts above 40% confirming Amazon's aggressive discount pricing strategy.
+## 📊 Dashboard Features
 
-**Additional Insight 2 — Price Range Distribution:**
-| Price Range | Count | Percentage |
-|-------------|-------|-----------|
-| Mid-Range (₹501-2,000) | 523 | 35.7% |
-| Premium (₹2,001-10,000) | 422 | 28.8% |
-| Budget (₹0-500) | 312 | 21.3% |
-| Luxury (₹10,000+) | 208 | 14.2% |
-> Mid-Range products dominate the catalog at 35.7% showing Amazon caters primarily to value conscious customers.
+- **6 KPI Cards** — Total Customers, Churn Rate, Total Revenue (CLTV), Retained Customers, Avg Monthly Charges, Average Tenure
+- **9 Interactive Charts:**
+  - Churn Rate by Contract Type (Bar Chart)
+  - Churn Rate by Tenure Group (Bar Chart)
+  - Churn Rate by Payment Method (Bar Chart)
+  - Customer Base by Gender (Donut Chart)
+  - Customer Base by Contract Type (Donut Chart)
+  - Distribution of Customer Tenure (Histogram)
+  - Distribution of Monthly Charges (Histogram)
+  - Monthly Charges Distribution by Churn Status (Box Plot)
+  - Correlation Heatmap — Key Metrics
+- **3 Dynamic Slicers** — Contract, Internet Service, Payment Method
+- **Colour Theme** — Teal `#1A6B6B` and Navy Blue accents
 
----
+## Recommendations
 
-##  Dashboard Features
+1. **Incentivize contract upgrades** — offer discounts or free add-ons to convert month-to-month customers (55% of the base) to annual contracts
+2. **Launch a first-year retention program** — proactive check-ins at 30/90/180 days to address the 47.4% first-year churn spike
+3. **Investigate electronic check churn** — determine whether it's a billing friction issue or a customer profile issue, and incentivize migration to autopay
+4. **Review the fiber optic customer experience** — survey premium-tier customers to identify the root cause of their elevated churn
+5. **Bundle add-on services** — restructure single-service upsells into 2-3 service packages to avoid the "partial adoption" churn spike
 
-- **5 KPI Cards** — Total Products, Average Rating, Average Discount, Most Reviewed Category, Average Price Saving
-- **6 Interactive Charts:**
-  - Top Products by Rating (Bar Chart)
-  - Price vs Rating Analysis (Clustered Bar with Secondary Axis)
-  - Category Performance by Rating (Bar Chart)
-  - Top Products by User Engagement (Bar Chart)
-  - Discount Distribution (Donut Chart)
-  - Category by Total Review Count (Bar Chart)
-- **3 Dynamic Slicers** — Main Category, Price Range, Discount Range
-- **Colour Theme** — Amazon Orange `#FF9900` and Dark Navy `#232F3E`
+## Key Takeaways
 
-##  Recommendations
-
-1. **Invest in Office Products and Toys marketing** — highest ratings but low review counts suggest untapped potential
-2. **Improve Car & Motorbike category** — lowest rating (3.80) and fewest reviews (1,118) need urgent attention through product quality improvement and targeted promotions
-
-##  Key Takeaways
-
-- Amazon maintains strong customer satisfaction with an average rating of **4.10**
-- Price does **NOT** significantly impact customer satisfaction
-- **65%** of products offer discounts above 40% — value for money is Amazon's core strength
-- Electronics dominates engagement with **15.7 million** reviews
-- Customers save an average of **₹2,321** per product
-
-
+- Overall churn rate stands at **26.5%**, with **73.5%** of customers retained
+- Contract type is the **single strongest churn driver** — a ~15x gap between month-to-month and two-year holders
+- **47.4%** of first-year customers churn — loyalty builds sharply after year one
+- Electronic check payment is linked to **45.3%** churn, nearly 3x automatic payment methods
+- Total estimated customer lifetime value across the base: **$16,055,091**
